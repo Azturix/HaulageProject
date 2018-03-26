@@ -1,22 +1,11 @@
-﻿///-----------------------------------------------------------------
-///   Namespace:      <Class Namespace>
-///   Class:          <Class Name>
-///   Description:    <Description>
-///   Author:         <Author>                    Date: <DateTime>
-///   Notes:          <Notes>
-///   Revision History:
-///   Name:           Date:        Description:
-///-----------------------------------------------------------------
+﻿using HypCoreLibrary.Constants;
+using HypCoreLibrary.Event;
+using HypCoreLibrary.Interface;
+using Ionic.Zip;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HypCoreLibrary.Interface;
-using HypCoreLibrary.Constants;
-using Ionic.Zip;
 using System.IO;
-using HypCoreLibrary.Event;
+using System.Linq;
 
 namespace HypCoreLibrary.Models.DataAbstract
 {
@@ -24,16 +13,10 @@ namespace HypCoreLibrary.Models.DataAbstract
     /// <summary>
     /// Data unit base
     /// </summary>
-    public class DataUnitBase
+    /// <typeparam name="T">Definition file base</typeparam>
+    public class DataUnitBase<T> where T : DefinitionFileBase, new()
     {
-
-
         #region Propertys
-        /// <summary>
-        /// The definition file constant name
-        /// </summary>
-        public const string DefinitionFile = "Definition file";
-
         /// <summary>
         /// Gets the file path.
         /// </summary>
@@ -73,14 +56,18 @@ namespace HypCoreLibrary.Models.DataAbstract
         /// </value>
         public List<string> ChildrenFolderRoutes { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the inside folder path.
+        /// </summary>
+        /// <value>
+        /// The inside folder path.
+        /// </value>
         public string InsideFolderPath { get; set; }
+
 
         public List<string> EntryRoute { get; set; }
         #endregion
-        #region Event        
-
-
+        #region Event       
         /// <summary>
         /// Occurs when [create data entry event].
         /// </summary>
@@ -108,8 +95,7 @@ namespace HypCoreLibrary.Models.DataAbstract
 
 
 
-        #endregion 
-
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataUnitBase"/> class.
@@ -117,9 +103,27 @@ namespace HypCoreLibrary.Models.DataAbstract
         /// <param name="filePath">The absolute file path.</param>
         public DataUnitBase(string filePath, string folderPath = null)
         {
+
+
             ZipFilePath = filePath;
             if (folderPath == null) InsideFolderPath = string.Empty;
             else InsideFolderPath = folderPath;
+
+            // Revision of the units
+
+            var zipFile = GetZipFile();
+
+            // Creating an empty file definition file
+            var entries = zipFile.EntryFileNames.ToList();
+            if (!entries.Contains(GetDefinitionFileInsidePath()))
+            {
+                T definitionFileName = new T();
+                CreateEntry
+            }
+
+
+
+
 
 
             CreateDataEntryEvent += DataUnitBase_CreateDataEntryEvent;
@@ -242,42 +246,51 @@ namespace HypCoreLibrary.Models.DataAbstract
             if (File.Exists(ZipFilePath))
             {
                 zipFile = ZipFile.Read(ZipFilePath);
-                EntryNames = zipFile.EntryFileNames.ToList();
             }
             else
             {
                 zipFile = new ZipFile(ZipFilePath);
                 zipFile.Save();
-                EntryNames = new List<string>();
             }
             return zipFile;
         }
 
 
-        public void CreateEntry(string name)
+        //public DefinitionFileBase GetDefinitionFile()
+        //{
+        //    var zipFile = GetZipFile();
+        //    if (zipFile.ContainsEntry(FileExtension.DEFINITION)) return zipFile;
+        //}
+
+
+        public void CreateEntry(string name, DataEntryBase dataEntry)
         {
+            //  TODO: Obtener dato por tipo de extension  o  declarado
+
+
+            // TODO: Metodo que obtiene el path segun el archivo
             using (var zipFile = GetZipFile())
             {
-                zipFile.AddEntry(Path.Combine(InsideFolderPath, name), new byte[1000000000]);
+                zipFile.AddEntry(name, dataEntry.Serialize());
                 zipFile.Save();
             }
         }
 
 
-        public void ReadEntry<T>(string name, IDeserialize<T> deserialize)
+        public void ReadEntry<S>(string name, )
         {
-            using (var zipFile = GetZipFile())
-            {
-                var algo = zipFile[Path.Combine(InsideFolderPath, name)];
-                using (MemoryStream stream = new MemoryStream((int)algo.UncompressedSize))
-                {
-                    // TODO: Eventos de deserializ
-                    // TODO: Deserializable en el constructor
-                    // Deserialiacion en archivos temporales. 
-                    algo.Extract(stream);
-                    deserialize.Deserialize(stream);
-                }
-            }
+            //using (var zipFile = GetZipFile())
+            //{
+            //    var algo = zipFile[Path.Combine(InsideFolderPath, name)];
+            //    using (MemoryStream stream = new MemoryStream((int)algo.UncompressedSize))
+            //    {
+            //        // TODO: Eventos de deserializ
+            //        // TODO: Deserializable en el constructor
+            //        // Deserialiacion en archivos temporales. 
+            //        algo.Extract(stream);
+            //        deserialize.Deserialize(stream);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -304,6 +317,35 @@ namespace HypCoreLibrary.Models.DataAbstract
         }
 
 
+
+
+
+
+        #region Miscellaneous methods
+
+        /// <summary>
+        /// Gets the definition file.
+        /// </summary>
+        /// <returns></returns>
+        private string GetDefinitionFileInsidePath()
+        {
+            return Path.Combine(InsideFolderPath,
+                         Path.ChangeExtension
+                         (NamingConstants.DEFINITION_FILE_CONSTANT_NAME,
+                         FileExtension.DEFINITION));
+        }
+
+        /// <summary>
+        /// Gets the entry path.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        private string GetEntryPath(string name)
+        {
+            return Path.Combine(InsideFolderPath, name);
+        }
+
+        #endregion
 
 
 

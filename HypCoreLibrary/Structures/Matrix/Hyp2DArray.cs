@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HypCoreLibrary.Interface;
+using HypCoreLibrary.Constants;
+
 namespace HypCoreLibrary.Structures.Matrix
 {
     /// <summary>
@@ -30,7 +32,12 @@ namespace HypCoreLibrary.Structures.Matrix
         /// </summary>
         public Hyp2DArray() : base()
         {
-
+            if (typeof(T) == typeof(double))
+                Extension = FileExtension.MATRIX_2D_DOUBLE;
+            else if (typeof(T) == typeof(float))
+                Extension = FileExtension.MATRIX_2D_FLOAT;
+            else if (typeof(T) == typeof(int))
+                Extension = FileExtension.MATRIX_2D_INT;
         }
         /// <summary>
         /// Constructor with dimensions and empty data
@@ -111,6 +118,11 @@ namespace HypCoreLibrary.Structures.Matrix
             return Copy() as S;
         }
 
+        /// <summary>
+        /// Serializes this instance.
+        /// Don't inheret if you have your own strategy
+        /// </summary>
+        /// <returns></returns>
         public override Stream Serialize()
         {
             return base.Serialize();

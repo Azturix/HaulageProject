@@ -13,8 +13,8 @@
             <TextBox Text="1000" x:Name="tbNumbers"></TextBox>
             <TextBlock x:Name="tbTimeSerialize"/>
             <TextBlock x:Name="tbTimeDeserialize"/>
-            <Button Click="ProcessCallback" Content="Process"></Button>
-
+            <Button Click="ProcessCallback" Content="Import"></Button>
+            
         </StackPanel>
     </Grid>
 </Window>

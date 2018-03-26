@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HypCoreLibrary.Constants;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace HypCoreLibrary.Models.DataAbstract
 {
-
+    /// <summary>
+    /// Data entry base 
+    /// </summary>
     [Serializable]
     public abstract class DataEntryBase
     {
@@ -25,7 +28,15 @@ namespace HypCoreLibrary.Models.DataAbstract
         /// <value>
         /// The extension.
         /// </value>
-        public virtual string Extension { get; set; } = "hgen";
+        public virtual string Extension { get; set; } = FileExtension.GENERIC;
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DataEntryBase"/> class.
         /// </summary>
@@ -66,7 +77,11 @@ namespace HypCoreLibrary.Models.DataAbstract
             return outStream;
         }
 
-        //
+        /// <summary>
+        /// Copies this instance.
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <returns></returns>
         public virtual S Copy<S>() where S : DataEntryBase, new()
         {
             return Instance(this as S);
@@ -114,6 +129,7 @@ namespace HypCoreLibrary.Models.DataAbstract
                 return instance.Deserialize<T>(fs);
             }
         }
+
         /// <summary>
         /// Instances the specified file path.
         /// </summary>

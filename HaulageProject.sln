@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaulageProject", "HaulagePr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HypCoreLibrary", "HypCoreLibrary\HypCoreLibrary.csproj", "{08DD35D4-9C0E-4A43-8DAD-9D45C0993AE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{08DD35D4-9C0E-4A43-8DAD-9D45C0993AE6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{08DD35D4-9C0E-4A43-8DAD-9D45C0993AE6}.Release|x64.ActiveCfg = Release|Any CPU
 		{08DD35D4-9C0E-4A43-8DAD-9D45C0993AE6}.Release|x64.Build.0 = Release|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Debug|x64.Build.0 = Debug|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Release|x64.ActiveCfg = Release|Any CPU
+		{6A6F24E3-492F-4AE5-AAFB-A6FBDAE16CCB}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

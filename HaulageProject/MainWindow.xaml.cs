@@ -28,30 +28,39 @@ namespace HaulageProject
     public partial class MainWindow : Window
     {
 
-        List<DataUnitBase> dataList;
+        //List<DataUnitBase> dataList;
 
         Alpha60 alpha;
+
+
+        public event Func<bool> Initiate;
 
         public MainWindow()
         {
             InitializeComponent();
             alpha = new Alpha60();
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            var array = new Hyp3DArray<double>(10, 20, 30);
-            array.Serialize(@"D:\Desktop\data.mat");
-            var myArray = DataEntryBase.Instance<Hyp3DArray<double>>(@"D:\Desktop\data.mat");
+
+
+
+            DataUnitBase<DefinitionFileBase> dataUnit = new DataUnitBase<DefinitionFileBase>("Hola");
+
+
+
+
+
 
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            //(e.ExceptionObject as Exception).Message;
-            //var stackTrace = (e.ExceptionObject as Exception).StackTrace;
-            //System.Windows.Forms.MessageBox.Show(stackTrace);
+
         }
         private void ProcessCallback(object sender, RoutedEventArgs e)
         {
             GC.Collect();
+            var status = Initiate.Invoke();
         }
+
     }
 }

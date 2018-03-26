@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HypCoreLibrary.Constants;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,7 +45,12 @@ namespace HypCoreLibrary.Structures.Matrix
         /// </summary>
         public Hyp3DArray() : base()
         {
-
+            if (typeof(T) == typeof(double))
+                Extension = FileExtension.MATRIX_3D_DOUBLE;
+            else if (typeof(T) == typeof(float))
+                Extension = FileExtension.MATRIX_3D_FLOAT;
+            else if (typeof(T) == typeof(int))
+                Extension = FileExtension.MATRIX_3D_INT;
         }
         /// <summary>
         /// Constructor with dimensions and empty data
@@ -68,7 +74,7 @@ namespace HypCoreLibrary.Structures.Matrix
             MSize = m_size;
             NSize = n_size;
             OSize = o_size;
-        }  
+        }
 
 
         /// <summary>
@@ -122,7 +128,7 @@ namespace HypCoreLibrary.Structures.Matrix
         {
             var data = new T[Data.Length];
             Array.Copy(Data, data, Data.Length);
-            return new Hyp3DArray<T>(data, MSize, NSize,OSize);
+            return new Hyp3DArray<T>(data, MSize, NSize, OSize);
         }
 
 
@@ -148,10 +154,9 @@ namespace HypCoreLibrary.Structures.Matrix
             var arrayBase = base.Deserialize<HypArrayBase<T>>(stream);
             var dimensions = arrayBase.GetDimensions();
             var array3D = new Hyp3DArray<T>(arrayBase.Data,
-                                            dimensions[0], 
+                                            dimensions[0],
                                             dimensions[1],
                                             dimensions[2]);
-
             return array3D as S;
         }
     }
