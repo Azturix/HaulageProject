@@ -8,10 +8,24 @@ using System.Threading.Tasks;
 
 namespace HypCoreLibrary.Models.DataAbstract
 {
+
     [Serializable]
     public abstract class DataEntryBase
     {
-        public string Version { get; set; } = "0.0.0.0";
+        /// <summary>
+        /// Gets or sets the version.
+        /// </summary>
+        /// <value>
+        /// The version.
+        /// </value>
+        public virtual int Version { get; set; } = 0;
+        /// <summary>
+        /// Gets or sets the extension.
+        /// </summary>
+        /// <value>
+        /// The extension.
+        /// </value>
+        public virtual string Extension { get; set; } = "hgen";
         /// <summary>
         /// Initializes a new instance of the <see cref="DataEntryBase"/> class.
         /// </summary>
@@ -19,20 +33,25 @@ namespace HypCoreLibrary.Models.DataAbstract
         {
 
         }
+
+
+
         /// <summary>
         /// Deserializes the specified stream fullfilling the properties.
         /// Don't use the base if you have your own strategy
         /// </summary>
+        /// <typeparam name="S"></typeparam>
         /// <param name="stream">The stream.</param>
-        protected virtual T Deserialize<T>(Stream stream) where T : DataEntryBase
+        protected virtual S Deserialize<S>(Stream stream) where S : DataEntryBase
         {
             using (stream)
             {
                 BinaryFormatter formatter = new BinaryFormatter();
                 var entry = formatter.Deserialize(stream);
-                return entry as T;
+                return entry as S;
             }
         }
+
         /// <summary>
         /// Serializes this instance. 
         /// Don't inheret if you have your own strategy
@@ -40,13 +59,36 @@ namespace HypCoreLibrary.Models.DataAbstract
         /// <returns></returns>
         public virtual Stream Serialize()
         {
-            using (MemoryStream outStream = new MemoryStream())
+            MemoryStream outStream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(outStream, this);
+            outStream.Position = 0;
+            return outStream;
+        }
+
+        //
+        public virtual S Copy<S>() where S : DataEntryBase, new()
+        {
+            return Instance(this as S);
+        }
+
+        /// <summary>
+        /// Serializes this instance. 
+        /// Don't inheret if you have your own strategy
+        /// </summary>
+        /// <returns></returns>
+        public void Serialize(string filePath)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Create))
             {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(outStream, this);
-                return outStream;
+                using (Stream stream = Serialize())
+                {
+                    stream.CopyTo(fs);
+                }
             }
         }
+
+        #region Instancing 
         /// <summary>
         /// Instances the specified stream.
         /// </summary>
@@ -58,5 +100,37 @@ namespace HypCoreLibrary.Models.DataAbstract
             var instance = new T();
             return instance.Deserialize<T>(stream);
         }
+        /// <summary>
+        /// Instances the specified file path.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filePath">The file path.</param>
+        /// <returns></returns>
+        public static T Instance<T>(string filePath) where T : DataEntryBase, new()
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            {
+                var instance = new T();
+                return instance.Deserialize<T>(fs);
+            }
+        }
+        /// <summary>
+        /// Instances the specified file path.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filePath">The file path.</param>
+        /// <returns></returns>
+        public static T Instance<T>(T obj) where T : DataEntryBase, new()
+        {
+            using (var stream = obj.Serialize())
+            {
+                var instance = new T();
+                return instance.Deserialize<T>(stream);
+            }
+        }
+
+        #endregion
+
+
     }
 }

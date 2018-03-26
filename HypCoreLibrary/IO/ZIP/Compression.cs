@@ -34,7 +34,7 @@ namespace HypCoreLibrary.IO.ZIP
 
             for (int i = 0; i < 10; i++)
             {
-                zipFile.AddEntry(i.ToString(), array.GetBytes());
+                //zipFile.AddEntry(i.ToString(), array.GetBytes());
             }
             zipFile.Save();
         }

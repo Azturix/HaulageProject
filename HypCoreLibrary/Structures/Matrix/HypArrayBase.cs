@@ -11,8 +11,28 @@ using HypCoreLibrary.Models.DataAbstract;
 
 namespace HypCoreLibrary.Structures.Matrix
 {
+    /// <summary>
+    /// Base array for data handling and operations
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <seealso cref="HypCoreLibrary.Models.DataAbstract.DataEntryBase" />
     public class HypArrayBase<T> : DataEntryBase
     {
+        /// <summary>
+        /// Gets or sets the version.
+        /// </summary>
+        /// <value>
+        /// The version.
+        /// </value>
+        public override int Version { get; set; } = 0;
+        /// <summary>
+        /// Gets or sets the extension.
+        /// </summary>
+        /// <value>
+        /// The extension.
+        /// </value>
+        public override string Extension { get; set; } = "hgenmat";
+
         /// <summary>
         /// Principal data unit
         /// </summary>
@@ -63,7 +83,7 @@ namespace HypCoreLibrary.Structures.Matrix
             Size = dimensions;
             Data = data;
         }
-     
+
         /// <summary>
         /// Get the value according to subscripts
         /// </summary>
@@ -191,6 +211,16 @@ namespace HypCoreLibrary.Structures.Matrix
             Array.Copy(Data, outData, outData.Length);
             return new HypArrayBase<T>(outData, Size);
         }
+        /// <summary>
+        /// Copies this instance.
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <returns></returns>
+        public override S Copy<S>()
+        {
+            return Copy() as S;
+        }
+
         public override int GetHashCode()
         {
             return base.GetHashCode();
@@ -201,32 +231,61 @@ namespace HypCoreLibrary.Structures.Matrix
         }
 
 
-        #region Serialize region
+        #region Serialize region        
+        /// <summary>
+        /// Serializes this instance.
+        /// Don't inheret if you have your own strategy
+        /// </summary>
+        /// <returns></returns>
+        public override Stream Serialize()
+        {            
 
+            MemoryStream stream = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(stream);
+
+            //var intSize = sizeof(int);
+            var genericSize = Marshal.SizeOf<T>();
+
+            // Write the version
+            writer.Write(Version);
+            // Write the number of dimension
+            writer.Write(GetDimensions().Count());
+            // Write the dimensions
+            foreach (var dim in GetDimensions())
+                writer.Write(dim);
+            // Write the data
+            var outBytes = new byte[genericSize * Data.Length];
+            Buffer.BlockCopy(Data, 0, outBytes, 0, Data.Count());
+            writer.BaseStream.Write(outBytes, 0, outBytes.Count());
+            stream.Position = 0;
+            return stream;
+        }
 
         #endregion
 
 
-        #region Deserialization
-
-        //void Deserialize(Stream stream)
-        //{
-
-        //}
-
+        #region Deserialization        
         /// <summary>
-        /// Deserialization of the data
+        /// Deserializes the specified stream fullfilling the properties.
+        /// Don't use the base if you have your own strategy
         /// </summary>
-        /// <param name="stream">Stream data</param>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="stream">The stream.</param>
         /// <returns></returns>
-        public HypArrayBase<T> Deserialize(Stream stream)
+        protected override S Deserialize<S>(Stream stream)
         {
             using (BinaryReader reader = new BinaryReader(stream))
             {
+                // Sets the sizes
                 var intSize = sizeof(int);
                 var genericSize = Marshal.SizeOf<T>();
-                // Read the avaiable number of dimensions
+
+                // Read the version
                 var auxiliarBytes = new byte[intSize];
+                reader.BaseStream.Read(auxiliarBytes, 0, intSize);
+                int version = BitConverter.ToInt32(auxiliarBytes, 0);
+
+                // Read the avaiable number of dimensions
                 reader.BaseStream.Read(auxiliarBytes, 0, auxiliarBytes.Count());
                 var numberOfDimensions = BitConverter.ToInt16(auxiliarBytes, 0);
                 var dimensions = new int[numberOfDimensions];
@@ -244,36 +303,13 @@ namespace HypCoreLibrary.Structures.Matrix
                 var readedBytes = new byte[numElements * genericSize];
                 reader.BaseStream.Read(readedBytes, 0, readedBytes.Count());
                 Buffer.BlockCopy(readedBytes, 0, data, 0, readedBytes.Count());
-                return new HypArrayBase<T>(data, dimensions);
+                return new HypArrayBase<T>(data, dimensions) { Version = version } as S;
             }
         }
 
-        /// <summary>
-        /// Deserialize the data
-        /// </summary>
-        /// <param name="bytes">bytes</param>
-        /// <returns></returns>
-        public HypArrayBase<T> Deserialize(byte[] bytes)
-        {
-            using (var memoryStream = new MemoryStream(bytes))
-                return Deserialize(memoryStream);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public HypArrayBase<T> Deserialize(string fileName)
-        {
-            using (var fileStream = new FileStream(fileName, FileMode.Open))
-                return Deserialize(fileStream);
-        }
+
 
         #endregion
-
-
-
-
 
         #region implicit mathematic  operators
 

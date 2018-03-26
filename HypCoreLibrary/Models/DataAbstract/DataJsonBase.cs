@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HypCoreLibrary.Models.DataAbstract
 {
-    class DataJsonBase
+    public class DataJsonBase : DataEntryBase
     {
         // TODO: Poner reglas del juego para un archivo json
     }

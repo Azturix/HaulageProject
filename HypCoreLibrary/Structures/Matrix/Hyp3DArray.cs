@@ -68,41 +68,7 @@ namespace HypCoreLibrary.Structures.Matrix
             MSize = m_size;
             NSize = n_size;
             OSize = o_size;
-        }
-
-
-        /// <summary>
-        /// Load from file path
-        /// </summary>
-        /// <param name="filePath"></param>
-        public Hyp3DArray(string filePath) : base(filePath)
-        {
-            MSize = GetDimensions()[0];
-            NSize = GetDimensions()[1];
-            OSize = GetDimensions()[2];
-        }
-
-        /// <summary>
-        /// Load from stream
-        /// </summary>
-        /// <param name="stream">strem</param>
-        public Hyp3DArray(Stream stream) : base(stream)
-        {
-            MSize = GetDimensions()[0];
-            NSize = GetDimensions()[1];
-            OSize = GetDimensions()[2];
-        }
-        /// <summary>
-        /// Deserialize from bytes
-        /// </summary>
-        /// <param name="bytes"></param>
-        public Hyp3DArray(byte[] bytes) : base(bytes)
-        {
-
-            MSize = GetDimensions()[0];
-            NSize = GetDimensions()[1];
-            OSize = GetDimensions()[2];
-        }
+        }  
 
 
         /// <summary>
@@ -157,6 +123,36 @@ namespace HypCoreLibrary.Structures.Matrix
             var data = new T[Data.Length];
             Array.Copy(Data, data, Data.Length);
             return new Hyp3DArray<T>(data, MSize, NSize,OSize);
+        }
+
+
+        /// <summary>
+        /// Copies this instance.
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <returns></returns>
+        public override S Copy<S>()
+        {
+            return Copy() as S;
+        }
+        /// <summary>
+        /// Deserializes the specified stream fullfilling the properties.
+        /// Don't use the base if you have your own strategy
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="stream">The stream.</param>
+        /// <returns></returns>
+        protected override S Deserialize<S>(Stream stream)
+        {
+
+            var arrayBase = base.Deserialize<HypArrayBase<T>>(stream);
+            var dimensions = arrayBase.GetDimensions();
+            var array3D = new Hyp3DArray<T>(arrayBase.Data,
+                                            dimensions[0], 
+                                            dimensions[1],
+                                            dimensions[2]);
+
+            return array3D as S;
         }
     }
 }

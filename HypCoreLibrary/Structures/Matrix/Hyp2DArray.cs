@@ -54,37 +54,6 @@ namespace HypCoreLibrary.Structures.Matrix
             NSize = n_size;
         }
 
-
-        /// <summary>
-        /// Load from file path
-        /// </summary>
-        /// <param name="filePath"></param>
-        public Hyp2DArray(string filePath) : base(filePath)
-        {
-            MSize = GetDimensions()[0];
-            NSize = GetDimensions()[1];
-        }
-
-        /// <summary>
-        /// Load from stream
-        /// </summary>
-        /// <param name="stream">strem</param>
-        public Hyp2DArray(Stream stream) : base(stream)
-        {
-            MSize = GetDimensions()[0];
-            NSize = GetDimensions()[1];
-        }
-        /// <summary>
-        /// Deserialize from bytes
-        /// </summary>
-        /// <param name="bytes"></param>
-        public Hyp2DArray(byte[] bytes) : base(bytes)
-        {
-
-            MSize = GetDimensions()[0];
-            NSize = GetDimensions()[1];
-        }
-
         /// <summary>
         /// Get the value acoording to index
         /// </summary>
@@ -94,6 +63,11 @@ namespace HypCoreLibrary.Structures.Matrix
         {
             return base.GetValue(index);
         }
+        /// <summary>
+        /// Get the value according to subscripts
+        /// </summary>
+        /// <param name="subscripts">sub indices</param>
+        /// <returns></returns>
         public override T GetValue(params int[] subscripts)
         {
             return Data[subscripts[0] + subscripts[1] * MSize];
@@ -117,14 +91,48 @@ namespace HypCoreLibrary.Structures.Matrix
             Data[subscripts[0] + subscripts[1] * MSize] = value;
         }
 
-
+        /// <summary>
+        /// Copy the array
+        /// </summary>
+        /// <returns></returns>
         public override HypArrayBase<T> Copy()
         {
             var data = new T[Data.Length];
             Array.Copy(Data, data, Data.Length);
             return new Hyp2DArray<T>(data, MSize, NSize);
         }
+        /// <summary>
+        /// Copies this instance.
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <returns></returns>
+        public override S Copy<S>()
+        {
+            return Copy() as S;
+        }
+
+        public override Stream Serialize()
+        {
+            return base.Serialize();
+        }
 
 
+        /// <summary>
+        /// Deserializes the specified stream fullfilling the properties.
+        /// Don't use the base if you have your own strategy
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="stream">The stream.</param>
+        /// <returns></returns>
+        protected override S Deserialize<S>(Stream stream)
+        {
+
+            var arrayBase = base.Deserialize<HypArrayBase<T>>(stream);
+            var dimensions = arrayBase.GetDimensions();
+            var array2D = new Hyp2DArray<T>(arrayBase.Data,
+                            dimensions[0], dimensions[1]);
+
+            return array2D as S;
+        }
     }
 }
